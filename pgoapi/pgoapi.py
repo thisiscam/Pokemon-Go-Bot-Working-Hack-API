@@ -102,7 +102,7 @@ class PGoApi:
     def get_position(self):
         return (self._position_lat, self._position_lng, self._position_alt)
     def set_position(self, lat, lng, alt):
-        self.log.debug('Set Position - Lat: %s Long: %s Alt: %s', lat, lng, alt)
+        self.log.info('Set Position - Lat: %s Long: %s Alt: %s', lat, lng, alt)
         self._posf = (lat,lng,alt)
         self._position_lat = f2i(lat)
         self._position_lng = f2i(lng)
@@ -163,9 +163,9 @@ class PGoApi:
                 self.set_position(*next_point)
                 self.heartbeat()
                 self.log.info("Sleeping before next heartbeat")
-                sleep(1) # If you want to make it faster, delete this line... would not recommend though
+                sleep(3) # If you want to make it faster, delete this line... would not recommend though
                 while self.catch_near_pokemon():
-                    sleep(1) # If you want to make it faster, delete this line... would not recommend though
+                    sleep(2) # If you want to make it faster, delete this line... would not recommend though
 
 
 
@@ -373,7 +373,7 @@ class PGoApi:
         self.heartbeat()
         while True:
             self.heartbeat()
-            sleep(1) # If you want to make it faster, delete this line... would not recommend though
+            sleep(2) # If you want to make it faster, delete this line... would not recommend though
             self.spin_near_fort()
             while self.catch_near_pokemon():
                 sleep(4) # If you want to make it faster, delete this line... would not recommend though
