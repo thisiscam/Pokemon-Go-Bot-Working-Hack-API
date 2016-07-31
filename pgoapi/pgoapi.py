@@ -43,7 +43,7 @@ class PGoApi:
 
     API_ENTRY = 'https://pgorelease.nianticlabs.com/plfe/rpc'
 
-    def __init__(self, config, pokemon_names):
+    def __init__(self, config, pokemon_names, initial_position):
 
         self.log = logging.getLogger(__name__)
 
@@ -53,12 +53,15 @@ class PGoApi:
         self._position_lat = 0
         self._position_lng = 0
         self._position_alt = 0
+        self._initial_position = initial_position
         self._posf = (0,0,0)
         self.MIN_KEEP_IV = config.get("MIN_KEEP_IV", 0)
         self.KEEP_CP_OVER = config.get("KEEP_CP_OVER", 0)
         self._req_method_list = []
         self._heartbeat_number = 5
         self.pokemon_names = pokemon_names
+                
+        self.set_position(*self._initial_position)
 
     def call(self):
         if not self._req_method_list:
@@ -160,7 +163,7 @@ class PGoApi:
                 self.set_position(*next_point)
                 self.heartbeat()
                 self.log.info("Sleeping before next heartbeat")
-                sleep(2) # If you want to make it faster, delete this line... would not recommend though
+                sleep(1) # If you want to make it faster, delete this line... would not recommend though
                 while self.catch_near_pokemon():
                     sleep(1) # If you want to make it faster, delete this line... would not recommend though
 
@@ -186,6 +189,9 @@ class PGoApi:
             return True
         else:
             self.log.error("No fort to walk to!")
+            self.log.info("Teleporting back to initial position... Sleeping for 30 secs")
+            sleep(30)
+            self.set_position(*self._initial_position)
             return False
 
     def catch_near_pokemon(self):
@@ -207,7 +213,7 @@ class PGoApi:
         position = self.get_position()
         neighbors = getNeighbors(self._posf)
         return self.get_map_objects(latitude=position[0], longitude=position[1], since_timestamp_ms=[0]*len(neighbors), cell_id=neighbors).call()
-    
+
     def attempt_catch(self,encounter_id,spawn_point_guid): #Problem here... add 4 if you have master ball
         for i in range(1,3): # Range 1...4 iff you have master ball `range(1,4)`
             r = self.catch_pokemon(
